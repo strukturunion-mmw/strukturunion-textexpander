@@ -310,7 +310,7 @@ final class KeystrokeMonitor: ObservableObject {
         return hotkey.keyCode == keyCode && hotkey.modifiers.intersection(relevant) == modifiers.intersection(relevant)
     }
 
-    private static func modifierFlags(from flags: CGEventFlags) -> NSEvent.ModifierFlags {
+    private nonisolated static func modifierFlags(from flags: CGEventFlags) -> NSEvent.ModifierFlags {
         var result: NSEvent.ModifierFlags = []
         if flags.contains(.maskCommand) { result.insert(.command) }
         if flags.contains(.maskAlternate) { result.insert(.option) }
@@ -320,7 +320,7 @@ final class KeystrokeMonitor: ObservableObject {
     }
 
     /// Converts a key-down event to the characters it produces.
-    private static func characters(from event: CGEvent) -> String? {
+    private nonisolated static func characters(from event: CGEvent) -> String? {
         var length = 0
         var chars = [UniChar](repeating: 0, count: 8)
         event.keyboardGetUnicodeString(maxStringLength: 8, actualStringLength: &length, unicodeString: &chars)

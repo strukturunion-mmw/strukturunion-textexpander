@@ -44,7 +44,7 @@ final class MainWindowController: NSWindowController, NSWindowDelegate {
     }
 
     func createNewGroup() {
-        var group = SnippetGroup(name: "Untitled Group")
+        let group = SnippetGroup(name: "Untitled Group")
         SnippetStore.shared.addGroup(group)
         appState.selectedGroupID = group.id
         appState.objectWillChange.send()

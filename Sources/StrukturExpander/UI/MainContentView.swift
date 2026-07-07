@@ -94,7 +94,7 @@ struct GroupSidebar: View {
     }
 
     private func addGroup() {
-        var group = SnippetGroup(name: "Untitled Group")
+        let group = SnippetGroup(name: "Untitled Group")
         store.addGroup(group)
         appState.selectedGroupID = group.id
     }
