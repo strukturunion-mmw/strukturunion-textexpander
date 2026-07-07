@@ -22,13 +22,31 @@ echo "==> Cleaning previous build"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 
-echo "==> Compiling Swift package ($CONFIG, universal arm64 + x86_64)"
+# Universal (--arch arm64 --arch x86_64) builds require the full Xcode
+# toolchain (xcbuild). If xcode-select points at the Command Line Tools but
+# Xcode.app is installed, use it via DEVELOPER_DIR; otherwise fall back to a
+# host-architecture-only build.
+ARCH_FLAGS=(--arch arm64 --arch x86_64)
+if [[ "$(xcode-select -p)" != *"Xcode.app"* ]]; then
+  if [ -d "/Applications/Xcode.app/Contents/Developer" ]; then
+    export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
+  else
+    ARCH_FLAGS=()
+  fi
+fi
+
+if [ "${#ARCH_FLAGS[@]}" -gt 0 ]; then
+  echo "==> Compiling Swift package ($CONFIG, universal arm64 + x86_64)"
+else
+  echo "==> Compiling Swift package ($CONFIG, host architecture only — no full Xcode)"
+fi
+
 swift build \
   -c "$CONFIG" \
-  --arch arm64 --arch x86_64 \
+  "${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"}" \
   --disable-sandbox
 
-BIN_PATH="$(swift build -c "$CONFIG" --arch arm64 --arch x86_64 --show-bin-path)"
+BIN_PATH="$(swift build -c "$CONFIG" "${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"}" --show-bin-path)"
 cp "$BIN_PATH/$APP_NAME" "$APP_DIR/Contents/MacOS/$APP_NAME"
 
 echo "==> Assembling app bundle"
